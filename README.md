@@ -1,6 +1,6 @@
 # WEBSITE https://book-charity.herokuapp.com/
 
-
+A test project for introduction to celo development on dacade.org with a use case idea of celo for charity.
 
 # Getting Started with Create React App
 
