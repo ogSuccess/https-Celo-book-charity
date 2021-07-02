@@ -2,6 +2,7 @@
 
 A test project for introduction to celo development on https//:https://dacade.org/communities/celo-development-101 with a use case idea of celo for charity.
 
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
