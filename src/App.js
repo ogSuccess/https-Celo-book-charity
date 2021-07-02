@@ -10,7 +10,6 @@ const ContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 const CharityContractAddress = "0x6F536bd9c22293b1b672951A9BD383831a9e2F37";
 
 export default function App() {
-  const [loading, setloading] = useState(false);
 
   const [celoBalance, setCeloBalance] = useState(0);
 
@@ -47,11 +46,12 @@ export default function App() {
         await setKit(kit);
       } catch (error) {
         console.log({ error });
-        // notification(`⚠️ ${error}.`)
+        alert(`⚠️ ${error}.`)
       }
     } else {
       console.log("please install the extension");
-      // notification("⚠️ Please install the CeloExtensionWallet.")
+
+      alert("⚠️ Please install the CeloExtensionWallet.")
     }
   };
 
@@ -63,6 +63,8 @@ export default function App() {
     }
   }, [kit, address]);
 
+
+
   const getBalance = async () => {
     const balance = await kit.getTotalBalance(address);
     const celoBalance = balance.CELO.shiftedBy(-ERC20_DECIMALS).toFixed(2);
@@ -73,44 +75,45 @@ export default function App() {
       CharityContractAddress
     );
 
-    console.log({ celoBalance, USDBalance });
     setcontract(contract);
-    setCeloBalance(celoBalance);
-    setcUSDBalance(USDBalance);
+    setCeloBalance(Number(celoBalance));
+    setcUSDBalance(Number(USDBalance));
   };
 
   const getBooks = async () => {
-    const _bookLength = await contract.methods.booksLength().call();
-    const _books = [];
-
-    for (let i = 0; i < _bookLength; i++) {
-      let _b = new Promise(async (resolve, reject) => {
-        let _book = await contract.methods.fetchBook(i).call();
-
-        resolve({
-          index: i,
-          owner: _book[0],
-          book_name: _book[1],
-          cover_photo: _book[2],
-          description: _book[3],
-          price: new BigNumber(_book[4]),
-          sales: _book[5],
-          // price: new BigNumber(candidate[5]),
-          // sold: candidate[6],
+    try {
+      const _bookLength = await contract.methods.booksLength().call();
+      const _books = [];
+  
+      for (let i = 0; i < _bookLength; i++) {
+        let _b = new Promise(async (resolve, reject) => {
+          let _book = await contract.methods.fetchBook(i).call();
+  
+          resolve({
+            index: i,
+            owner: _book[0],
+            book_name: _book[1],
+            cover_photo: _book[2],
+            description: _book[3],
+            price: new BigNumber(_book[4]),
+            sales: _book[5],
+          });
         });
+        _books.push(_b);
+      }
+      const all_books = await Promise.all(_books);
+      let total_sales = new BigNumber(0);
+  
+      all_books.forEach((book) => {
+       total_sales =  BigNumber.sum( total_sales, BigNumber(book.sales));
       });
-      _books.push(_b);
+      setBookSold(new BigNumber(total_sales).toString());
+      setBooks(all_books);
+    } catch (error) {
+      console.log(error)
+      alert("Something went wrong")
     }
-    const all_books = await Promise.all(_books);
-    let total_sales = 0;
-
-    all_books.forEach((book) => {
-      total_sales += book.sales;
-    });
-    
-
-    setBookSold(Number(total_sales));
-    setBooks(all_books);
+ 
   };
 
   useEffect(() => {
@@ -136,7 +139,7 @@ export default function App() {
         .shiftedBy(ERC20_DECIMALS)
         .toString();
 
-        console.log({donation_price})
+      console.log({ donation_price });
       const result = await cUSDContract.methods
         .approve(CharityContractAddress, donation_price)
         .send({ from: address });
@@ -146,6 +149,7 @@ export default function App() {
       getBalance();
       getBooks();
     } catch (error) {
+      alert(error)
       console.log({ error });
     }
   };
@@ -166,6 +170,7 @@ export default function App() {
       // return result
       getBalance();
     } catch (error) {
+      alert(error)
       console.log({ error });
     }
   };
@@ -323,7 +328,7 @@ export default function App() {
               <div className="d-flex flex-row justify-content-center flex-wrap">
                 {books &&
                   books.map((_book, key) => (
-                    <div className="card">
+                    <div className="card" key = {key}>
                       <div className="card-body">
                         <div className="title">
                           <h5 className="card-title">{_book.book_name}</h5>

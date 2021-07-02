@@ -130,5 +130,15 @@ constructor(){
         amountDonated += _price;
     }
     
+    // get amount of cusd donated
+    function getAmountDonated() public view returns (uint) {
+        return (amountDonated);
+    }
+    
+    // get the lenght of books on the contract
+    function getBookLength() public view returns (uint) {
+        return (booksLength);
+    }
+    
 
 }
