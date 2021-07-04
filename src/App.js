@@ -23,6 +23,7 @@ export default function App() {
   const [kit, setKit] = useState(null);
   const [amountDonated, setAmountDonated] = useState(0);
   const [bookSold, setBookSold] = useState(0);
+  // loading state
   const [loading, setloading] = useState(true);
 
   const ERC20_DECIMALS = 18;
@@ -51,6 +52,7 @@ export default function App() {
       } catch (error) {
         console.log({ error });
         alert(`⚠️ ${error}.`)
+        // set loading back to false
         setloading(false)
       }
     } else {
@@ -85,6 +87,7 @@ export default function App() {
     setcontract(contract);
     setCeloBalance(Number(celoBalance));
     setcUSDBalance(Number(USDBalance));
+    // set loading back to false after fetching balance
     setloading(false)
   };
 
