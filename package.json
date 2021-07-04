@@ -13,7 +13,8 @@
     "@celo-tools/use-contractkit": "^1.0.0-beta.12",
     "@celo/contractkit": "^1.2.0",
     "bignumber.js": "^9.0.1",
-    "web3": "^1.3.6"
+    "web3": "^1.3.6",
+    "react-loader-spinner": "^4.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -6,6 +6,9 @@ import Web3 from "@celo/contractkit/node_modules/web3";
 import BigNumber from "bignumber.js";
 import charityABI from "./contracts/Charity.abi.json";
 import erc20Abi from "./contracts/erc20.abi.json";
+import Loader from "react-loader-spinner";
+
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 const ContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 const CharityContractAddress = "0x6F536bd9c22293b1b672951A9BD383831a9e2F37";
 
@@ -20,6 +23,7 @@ export default function App() {
   const [kit, setKit] = useState(null);
   const [amountDonated, setAmountDonated] = useState(0);
   const [bookSold, setBookSold] = useState(0);
+  const [loading, setloading] = useState(true);
 
   const ERC20_DECIMALS = 18;
   useEffect(() => {
@@ -47,11 +51,13 @@ export default function App() {
       } catch (error) {
         console.log({ error });
         alert(`⚠️ ${error}.`)
+        setloading(false)
       }
     } else {
       console.log("please install the extension");
 
       alert("⚠️ Please install the CeloExtensionWallet.")
+      setloading(false)
     }
   };
 
@@ -60,6 +66,7 @@ export default function App() {
       return getBalance();
     } else {
       console.log("no kit or address");
+    
     }
   }, [kit, address]);
 
@@ -78,6 +85,7 @@ export default function App() {
     setcontract(contract);
     setCeloBalance(Number(celoBalance));
     setcUSDBalance(Number(USDBalance));
+    setloading(false)
   };
 
   const getBooks = async () => {
@@ -304,19 +312,60 @@ export default function App() {
           <div className="container-fluid text-center">
             <div className="numbers d-flex flex-md-row flex-wrap justify-content-center">
               <div className="rect">
-                <h1>{celoBalance}</h1>
+
+                {loading ?  
+                      <Loader
+                      type="ThreeDots"
+                      color="#e8633a"
+                      height={100}
+                      width={100}
+                      visible={true} //visibility
+                    /> : 
+                    <h1>{celoBalance}</h1>
+                    
+              }
+      
+                
                 <p>Your Celo Balance</p>
               </div>
               <div className="rect">
+              {loading ?  
+                      <Loader
+                      type="ThreeDots"
+                      color="#e8633a"
+                      height={100}
+                      width={100}
+                      visible={true} //visibility
+                    /> : 
                 <h1>{cUSDBalance}</h1>
+              }
+      
                 <p>Your cUSD balance </p>
               </div>
               <div className="rect">
+              {loading ?  
+                      <Loader
+                      type="ThreeDots"
+                      color="#e8633a"
+                      height={100}
+                      width={100}
+                      visible={true} //visibility
+                    /> : 
                 <h1>{bookSold}</h1>
+              }
                 <p>Total book sales</p>
               </div>
               <div className="rect">
+              {loading ?  
+                      <Loader
+                      type="ThreeDots"
+                      color="#e8633a"
+                      height={100}
+                      width={100}
+                      visible={true} //visibility
+                    /> : 
                 <h1>{amountDonated}</h1>
+              }
                 <p>Funds raised in cUSD</p>
               </div>
             </div>
@@ -326,7 +375,7 @@ export default function App() {
             <p>Buy this amazing reads and help donate to charity</p>
             <div className="cards">
               <div className="d-flex flex-row justify-content-center flex-wrap">
-                {books &&
+                {books ?
                   books.map((_book, key) => (
                     <div className="card" key = {key}>
                       <div className="card-body">
@@ -353,7 +402,17 @@ export default function App() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )) : 
+                  
+                  <Loader
+                  type="ThreeDots"
+                  color="#e8633a"
+                  height={150}
+                  width={150}
+                  visible={true} //visibility
+                />
+                  
+                  }
               </div>
             </div>
           </div>
