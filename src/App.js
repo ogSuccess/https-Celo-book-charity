@@ -4,15 +4,14 @@ import { newKitFromWeb3 } from "@celo/contractkit";
 import "@celo-tools/use-contractkit/lib/styles.css";
 import Web3 from "@celo/contractkit/node_modules/web3";
 import BigNumber from "bignumber.js";
-import charityABI from "./contracts/Charity.abi.json";
-import erc20Abi from "./contracts/erc20.abi.json";
+import charityABI from "./contracts/BookCharity.abi.json";
+import erc20Abi from "./contracts/IERC20Token.abi.json";
 const ContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
-const CharityContractAddress = "0x6F536bd9c22293b1b672951A9BD383831a9e2F37";
+const CharityContractAddress = "0x2091a4ebde62B460985D28dCC48dd2C86f3A8787";
 
 export default function App() {
 
   const [celoBalance, setCeloBalance] = useState(0);
-
   const [cUSDBalance, setcUSDBalance] = useState(0);
   const [books, setBooks] = useState([]);
   const [contract, setcontract] = useState(null);
@@ -29,28 +28,28 @@ export default function App() {
 
   const connectCeloWallet = async () => {
     if (window.celo) {
-      // notification("⚠️ Please approve this DApp to use it.")
       try {
         await window.celo.enable();
-        // notificationOff()
         const web3 = new Web3(window.celo);
         let kit = newKitFromWeb3(web3);
+        await setKit(kit);
 
         const accounts = await kit.web3.eth.getAccounts();
         const user_address = accounts[0];
-
         kit.defaultAccount = user_address;
-
         await setAddress(user_address);
 
-        await setKit(kit);
+        const contract = new kit.web3.eth.Contract(
+          charityABI,
+          CharityContractAddress
+        );
+        setcontract(contract);
       } catch (error) {
         console.log({ error });
         alert(`⚠️ ${error}.`)
       }
     } else {
       console.log("please install the extension");
-
       alert("⚠️ Please install the CeloExtensionWallet.")
     }
   };
@@ -63,19 +62,11 @@ export default function App() {
     }
   }, [kit, address]);
 
-
-
   const getBalance = async () => {
     const balance = await kit.getTotalBalance(address);
     const celoBalance = balance.CELO.shiftedBy(-ERC20_DECIMALS).toFixed(2);
     const USDBalance = balance.cUSD.shiftedBy(-ERC20_DECIMALS).toFixed(2);
 
-    const contract = new kit.web3.eth.Contract(
-      charityABI,
-      CharityContractAddress
-    );
-
-    setcontract(contract);
     setCeloBalance(Number(celoBalance));
     setcUSDBalance(Number(USDBalance));
   };
@@ -91,12 +82,11 @@ export default function App() {
   
           resolve({
             index: i,
-            owner: _book[0],
-            book_name: _book[1],
-            cover_photo: _book[2],
-            description: _book[3],
-            price: new BigNumber(_book[4]),
-            sales: _book[5],
+            book_name: _book.book_name,
+            cover_photo: _book.cover_photo,
+            description: _book.description,
+            price: new BigNumber(_book.price),
+            sales: _book.sales,
           });
         });
         _books.push(_b);
@@ -113,7 +103,6 @@ export default function App() {
       console.log(error)
       alert("Something went wrong")
     }
- 
   };
 
   useEffect(() => {
@@ -127,24 +116,21 @@ export default function App() {
 
   const fetchAmountDonated = async () => {
     const amount = await contract.methods.amountDonated().call();
-    console.log({ amount });
-    setAmountDonated(Number(amount));
+    const formated_amount = new BigNumber(amount).shiftedBy(-ERC20_DECIMALS).toFixed(2)
+    console.log({ amount, formated_amount });
+    setAmountDonated(Number(formated_amount));
   };
 
-  const buyBook = async (_price, _index) => {
+  const buyBook = async (_index, _price) => {
     try {
       const cUSDContract = new kit.web3.eth.Contract(erc20Abi, ContractAddress);
 
-      const donation_price = new BigNumber(_price)
-        .shiftedBy(ERC20_DECIMALS)
-        .toString();
+      const bookPrice = new BigNumber(_price).shiftedBy(ERC20_DECIMALS).toString();
 
-      console.log({ donation_price });
-      const result = await cUSDContract.methods
-        .approve(CharityContractAddress, donation_price)
-        .send({ from: address });
+      console.log({ bookPrice });
+      const result = await cUSDContract.methods.approve(CharityContractAddress, bookPrice).send({ from: address });
 
-      await contract.methods.buyBook(_index).send({ from: address });
+      await contract.methods.buyBook(_index, bookPrice).send({ from: address });
       // return result
       getBalance();
       getBooks();
@@ -154,21 +140,20 @@ export default function App() {
     }
   };
 
-  const donate = async (_price) => {
+  const donate = async (_amount) => {
     try {
       const cUSDContract = new kit.web3.eth.Contract(erc20Abi, ContractAddress);
-      const donation_price = new BigNumber(_price)
-        .shiftedBy(ERC20_DECIMALS)
-        .toString();
-      console.log(typeof donation_price);
+      const donationAmount = new BigNumber(_amount).shiftedBy(ERC20_DECIMALS).toString();
+      console.log({ donationAmount });
 
       const result = await cUSDContract.methods
-        .approve(CharityContractAddress, donation_price)
+        .approve(CharityContractAddress, donationAmount)
         .send({ from: address });
 
-      await contract.methods.donate(donation_price).send({ from: address });
+      await contract.methods.donate(donationAmount).send({ from: address });
       // return result
       getBalance();
+      fetchAmountDonated();
     } catch (error) {
       alert(error)
       console.log({ error });
@@ -178,6 +163,10 @@ export default function App() {
   useEffect(() => {
     if (contract) return getBooks();
   }, [contract]);
+
+  const bookImageStyle = {
+    maxHeight: '235px',
+  };
 
   return (
     <div>
@@ -251,7 +240,7 @@ export default function App() {
               </button>
             </div>
             <div className="col-md-5 col-sm-12  h-25">
-              <img src="/assets/header-img.png" alt="Book" />
+              <img src="/assets/images/header-img.png" alt="Book" />
             </div>
           </div>
         </div>
@@ -263,9 +252,8 @@ export default function App() {
               <div className="col-md-6 col-12">
                 <div className="pray">
                   <img
-                    src="/assets/pexels-photo-1904769.jpeg"
+                    src="/assets/images/pexels/pexels-photo-1904769.jpeg"
                     alt="Pray"
-                    className
                   />
                 </div>
               </div>
@@ -329,6 +317,7 @@ export default function App() {
                 {books &&
                   books.map((_book, key) => (
                     <div className="card" key = {key}>
+                      <img src={_book.cover_photo} className="card-img-top" alt={_book.book_name} style={bookImageStyle}></img>
                       <div className="card-body">
                         <div className="title">
                           <h5 className="card-title">{_book.book_name}</h5>
@@ -345,7 +334,7 @@ export default function App() {
                             className="btn btn-dark px-5 py-2 primary-btn mb-5"
                             onClick={(e) => {
                               e.preventDefault();
-                              buyBook(_book.price, _book.index);
+                              buyBook(_book.index, _book.price);
                             }}
                           >
                             Purchase Now
@@ -426,7 +415,7 @@ export default function App() {
               <div className="card mr-2 d-inline-block shadow-lg">
                 <div className="card-img-top">
                   <img
-                    src="/assets/UI-face-3.jpg"
+                    src="/assets/images/faces/UI-face-3.jpg"
                     className="img-fluid border-radius p-4"
                     alt=""
                   />
@@ -455,7 +444,7 @@ export default function App() {
                     <div className="card mr-2 d-inline-block shadow">
                       <div className="card-img-top">
                         <img
-                          src="/assets/UI-face-1.jpg"
+                          src="/assets/images/faces/UI-face-1.jpg"
                           className="img-fluid rounded-circle w-50 p-4"
                           alt=""
                         />
@@ -481,7 +470,7 @@ export default function App() {
                     <div className="card  d-inline-block mr-2 shadow">
                       <div className="card-img-top">
                         <img
-                          src="/assets/UI-face-2.jpg"
+                          src="/assets/images/faces/UI-face-2.jpg"
                           className="img-fluid rounded-circle w-50 p-4"
                           alt=""
                         />
@@ -511,7 +500,7 @@ export default function App() {
               <div className="card mr-2 d-inline-block shadow-lg">
                 <div className="card-img-top">
                   <img
-                    src="/assets/UI-face-4.jpg"
+                    src="/assets/images/faces/UI-face-4.jpg"
                     className="img-fluid border-radius p-4"
                     alt=""
                   />
