@@ -240,7 +240,7 @@ export default function App() {
               </button>
             </div>
             <div className="col-md-5 col-sm-12  h-25">
-              <img src="/assets/images/header-img.png" alt="Book" />
+              <img src="assets/images/header-img.png" alt="Book" />
             </div>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function App() {
               <div className="col-md-6 col-12">
                 <div className="pray">
                   <img
-                    src="/assets/images/pexels/pexels-photo-1904769.jpeg"
+                    src="assets/images/pexels/pexels-photo-1904769.jpeg"
                     alt="Pray"
                   />
                 </div>
@@ -415,7 +415,7 @@ export default function App() {
               <div className="card mr-2 d-inline-block shadow-lg">
                 <div className="card-img-top">
                   <img
-                    src="/assets/images/faces/UI-face-3.jpg"
+                    src="assets/images/faces/UI-face-3.jpg"
                     className="img-fluid border-radius p-4"
                     alt=""
                   />
@@ -444,7 +444,7 @@ export default function App() {
                     <div className="card mr-2 d-inline-block shadow">
                       <div className="card-img-top">
                         <img
-                          src="/assets/images/faces/UI-face-1.jpg"
+                          src="assets/images/faces/UI-face-1.jpg"
                           className="img-fluid rounded-circle w-50 p-4"
                           alt=""
                         />
@@ -470,7 +470,7 @@ export default function App() {
                     <div className="card  d-inline-block mr-2 shadow">
                       <div className="card-img-top">
                         <img
-                          src="/assets/images/faces/UI-face-2.jpg"
+                          src="assets/images/faces/UI-face-2.jpg"
                           className="img-fluid rounded-circle w-50 p-4"
                           alt=""
                         />
@@ -500,7 +500,7 @@ export default function App() {
               <div className="card mr-2 d-inline-block shadow-lg">
                 <div className="card-img-top">
                   <img
-                    src="/assets/images/faces/UI-face-4.jpg"
+                    src="assets/images/faces/UI-face-4.jpg"
                     className="img-fluid border-radius p-4"
                     alt=""
                   />
