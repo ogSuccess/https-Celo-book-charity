@@ -1,6 +1,6 @@
 # Celo Book Charity
 
-[Preview BookCharity](https://emmanueljet.github.io/celo-book-charity)
+[Preview BookCharity] (http://Book-charity.herokuapp.com)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) while utilizing [Celo Blockchain](http://celo.org) technology for the [dacade Celo Development 101 course](https://dacade.org/communities/celo-development-101) test project with a use case idea of [celo for charity](https://dacade.org/communities/celo-development-101/submissions/5ed9c97e-4e5e-41ec-88c7-926a8e7b59f4).
 
